@@ -31,7 +31,9 @@ public class UrlService {
         }
         
         if (expiryDays > 0) {
-            url.setExpiresAt(LocalDateTime.now().plusDays(expiryDays));
+        
+             url.setExpiresAt(LocalDateTime.now().plusDays(expiryDays));
+       
         }
         
         return urlRepository.save(url);
@@ -40,11 +42,16 @@ public class UrlService {
 public Url getUrl(String shortCode) {
     Url url = urlRepository.findByShortCode(shortCode)
         .orElseThrow(() -> new RuntimeException("URL not found"));
-    
-    // Increment click count every time URL is visited
+
+    // Check if link has expired
+    if (url.getExpiresAt() != null && url.getExpiresAt().isBefore(LocalDateTime.now())) {
+        throw new RuntimeException("This link has expired");
+    }
+
+    // Increment click count
     url.setClickCount(url.getClickCount() + 1);
     urlRepository.save(url);
-    
+
     return url;
 }
 
