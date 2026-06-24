@@ -1,9 +1,10 @@
 package com.example.Snaplink;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UrlService {
@@ -36,10 +37,16 @@ public class UrlService {
         return urlRepository.save(url);
     }
 
-    public Url getUrl(String shortCode) {
-        return urlRepository.findByShortCode(shortCode)
-            .orElseThrow(() -> new RuntimeException("URL not found"));
-    }
+public Url getUrl(String shortCode) {
+    Url url = urlRepository.findByShortCode(shortCode)
+        .orElseThrow(() -> new RuntimeException("URL not found"));
+    
+    // Increment click count every time URL is visited
+    url.setClickCount(url.getClickCount() + 1);
+    urlRepository.save(url);
+    
+    return url;
+}
 
     private String generateCode() {
         return UUID.randomUUID().toString().substring(0, 6);
