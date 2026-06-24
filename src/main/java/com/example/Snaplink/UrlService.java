@@ -23,11 +23,15 @@ public Url shortenUrl(String originalUrl, String password, int expiryDays, Strin
     }
 
     // Check if custom alias is already taken
-    if (customAlias != null && !customAlias.isEmpty()) {
-        urlRepository.findByShortCode(customAlias).ifPresent(u -> {
+if (customAlias != null && !customAlias.isEmpty()) {
+    urlRepository.findByShortCode(customAlias).ifPresent(existing -> {
+        // Only block if not expired
+        if (existing.getExpiresAt() == null || 
+            existing.getExpiresAt().isAfter(LocalDateTime.now())) {
             throw new RuntimeException("This alias is already taken");
-        });
-    }
+        }
+    });
+}
 
     Url url = new Url();
     url.setOriginalUrl(originalUrl);
