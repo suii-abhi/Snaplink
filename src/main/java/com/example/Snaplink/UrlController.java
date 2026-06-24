@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.zxing.BarcodeFormat;
@@ -37,11 +38,24 @@ public class UrlController {
     }
 
     // Redirect to original URL
-    @GetMapping("/{code}")
-    public void redirect(@PathVariable String code, HttpServletResponse response) throws IOException {
-        Url url = urlService.getUrl(code);
-        response.sendRedirect(url.getOriginalUrl());
+@GetMapping("/{code}")
+public void redirect(
+        @PathVariable String code,
+        @RequestParam(required = false) String password,
+        HttpServletResponse response) throws IOException {
+
+    Url url = urlService.getUrl(code);
+
+    // Check password if set
+    if (url.getPassword() != null && !url.getPassword().isEmpty()) {
+        if (password == null || !password.equals(url.getPassword())) {
+            response.sendError(401, "Password required or incorrect");
+            return;
+        }
     }
+
+    response.sendRedirect(url.getOriginalUrl());
+}
 
     // Get stats for a URL
     @GetMapping("/stats/{code}")
