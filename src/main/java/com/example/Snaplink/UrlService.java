@@ -12,32 +12,41 @@ public class UrlService {
     @Autowired
     private UrlRepository urlRepository;
 
-    public Url shortenUrl(String originalUrl, String password, int expiryDays) {
-        
-        // Validate URL
-        if (originalUrl == null || originalUrl.isEmpty()) {
-            throw new RuntimeException("URL cannot be empty");
-        }
-        if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
-            throw new RuntimeException("URL must start with http:// or https://");
-        }
-
-        Url url = new Url();
-        url.setOriginalUrl(originalUrl);
-        url.setShortCode(generateCode());
-        
-        if (password != null && !password.isEmpty()) {
-            url.setPassword(password);
-        }
-        
-        if (expiryDays > 0) {
-        
-             url.setExpiresAt(LocalDateTime.now().plusDays(expiryDays));
-       
-        }
-        
-        return urlRepository.save(url);
+public Url shortenUrl(String originalUrl, String password, int expiryDays, String customAlias) {
+    
+    // Validate URL
+    if (originalUrl == null || originalUrl.isEmpty()) {
+        throw new RuntimeException("URL cannot be empty");
     }
+    if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
+        throw new RuntimeException("URL must start with http:// or https://");
+    }
+
+    // Check if custom alias is already taken
+    if (customAlias != null && !customAlias.isEmpty()) {
+        urlRepository.findByShortCode(customAlias).ifPresent(u -> {
+            throw new RuntimeException("This alias is already taken");
+        });
+    }
+
+    Url url = new Url();
+    url.setOriginalUrl(originalUrl);
+    
+    // Use custom alias or generate random code
+    url.setShortCode(customAlias != null && !customAlias.isEmpty() 
+        ? customAlias 
+        : generateCode());
+    
+    if (password != null && !password.isEmpty()) {
+        url.setPassword(password);
+    }
+    
+    if (expiryDays > 0) {
+        url.setExpiresAt(LocalDateTime.now().plusDays(expiryDays));
+    }
+    
+    return urlRepository.save(url);
+}
 
 public Url getUrl(String shortCode) {
     Url url = urlRepository.findByShortCode(shortCode)

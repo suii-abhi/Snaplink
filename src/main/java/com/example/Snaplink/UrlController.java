@@ -27,15 +27,16 @@ public class UrlController {
     private UrlService urlService;
 
     // Shorten a URL
-    @PostMapping("/shorten")
-    public ResponseEntity<Url> shortenUrl(@RequestBody ShortenRequest request) {
-        Url url = urlService.shortenUrl(
-            request.getOriginalUrl(),
-            request.getPassword(),
-            request.getExpiryDays()
-        );
-        return ResponseEntity.ok(url);
-    }
+@PostMapping("/shorten")
+public ResponseEntity<Url> shortenUrl(@RequestBody ShortenRequest request) {
+    Url url = urlService.shortenUrl(
+        request.getOriginalUrl(),
+        request.getPassword(),
+        request.getExpiryDays(),
+        request.getCustomAlias()
+    );
+    return ResponseEntity.ok(url);
+}
 
     // Redirect to original URL
 @GetMapping("/{code}")
