@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 function App() {
   const [url, setUrl] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +16,7 @@ function App() {
   const handleShorten = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/shorten", {
+      const response = await fetch(`${API_URL}/shorten`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -31,7 +33,7 @@ function App() {
         return;
       }
       setShortCode(data.shortCode);
-      setShortUrl(`http://localhost:8080/${data.shortCode}`);
+      setShortUrl(`${API_URL}/${data.shortCode}`);
       setCustomAlias("");
     } catch (error) {
       alert("Something went wrong!");
@@ -149,7 +151,7 @@ function App() {
                 <p className="text-purple-300 text-sm mb-3">QR Code</p>
                 <div className="bg-white p-3 rounded-xl">
                   <img
-                    src={`http://localhost:8080/qr/${shortCode}`}
+                    src={`${API_URL}/qr/${shortCode}`}
                     alt="QR Code"
                     className="w-40 h-40"
                   />
