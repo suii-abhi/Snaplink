@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: snaplink
+      POSTGRES_USER: jobuser
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5433:5432"
+
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/snaplink
+      DATABASE_USERNAME: jobuser
+      DATABASE_PASSWORD: password123
+    depends_on:
+      - db
